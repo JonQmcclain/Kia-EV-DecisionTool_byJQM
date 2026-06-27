@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kia EV Decision Tool by JQM</title>
+  <style>
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0b0f14;color:#fff}
+    .wrap{max-width:1100px;margin:auto;padding:30px}
+    .hero{background:linear-gradient(135deg,#111827,#1f6feb);padding:40px;border-radius:24px}
+    h1{font-size:42px;margin:0 0 10px}
+    h2{color:#7dd3fc}
+    .card{background:#151b23;border:1px solid #30363d;border-radius:18px;padding:24px;margin:20px 0}
+    button,.btn{background:#1f6feb;color:white;border:0;padding:14px 22px;border-radius:12px;cursor:pointer;font-weight:bold;margin:8px}
+    button:hover{background:#388bfd}
+    select,input{width:100%;padding:12px;border-radius:10px;border:1px solid #30363d;background:#0d1117;color:white;margin:8px 0 18px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+    .metric{background:#0d1117;border:1px solid #30363d;border-radius:14px;padding:18px}
+    .metric strong{font-size:28px;color:#7dd3fc}
+    .hidden{display:none}
+    .result{border-left:5px solid #7dd3fc}
+    .tag{display:inline-block;background:#263041;padding:6px 10px;border-radius:999px;margin:4px;color:#c9d1d9}
+    footer{color:#8b949e;margin-top:30px;font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Kia EV Advisor</h1>
+      <p>Interactive EV decision-support prototype showing how Kia can reduce purchase uncertainty through EV fit quizzes, cost calculators, charging planners, and KPI tracking.</p>
+      <button onclick="startQuiz()">Start EV Fit Assessment</button>
+    </section>
+
+    <section class="card">
+      <h2>Prototype Purpose</h2>
+      <p>This prototype demonstrates how Interactive Decision Tools can move shoppers from awareness to consideration, dealer engagement, test drive, and conversion while generating measurable marketing analytics.</p>
+      <span class="tag">Awareness</span><span class="tag">Consideration</span><span class="tag">Test Drive</span><span class="tag">Conversion</span>
+    </section>
+
+    <section id="quiz" class="card hidden">
+      <h2>EV Fit Quiz</h2>
+
+      <label>Daily commute distance</label>
+      <select id="commute">
+        <option value="short">Under 25 miles</option>
+        <option value="medium">25–60 miles</option>
+        <option value="long">60+ miles</option>
+      </select>
+
+      <label>Household size</label>
+      <select id="household">
+        <option value="small">1–2 people</option>
+        <option value="family">3–5 people</option>
+        <option value="large">5+ people</option>
+      </select>
+
+      <label>Budget range</label>
+      <select id="budget">
+        <option value="value">Value-focused</option>
+        <option value="mid">Mid-range</option>
+        <option value="premium">Premium family SUV</option>
+      </select>
+
+      <label>Home charging access</label>
+      <select id="charging">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+        <option value="unsure">Unsure</option>
+      </select>
+
+      <label>Current vehicle type</label>
+      <select id="currentVehicle">
+        <option value="ice">Gas / ICE</option>
+        <option value="hybrid">Hybrid</option>
+        <option value="ev">EV</option>
+      </select>
+
+      <button onclick="showResult()">Generate Recommendation</button>
+    </section>
+
+    <section id="result" class="card result hidden">
+      <h2>Your Recommended Kia EV</h2>
+      <h1 id="vehicle">Kia EV6</h1>
+      <p id="reason"></p>
+      <p><strong>Charging Guidance:</strong> <span id="chargeText"></span></p>
+      <p><strong>Estimated Ownership Support:</strong> Rebate check, cost comparison, charging planner, and dealer EV consultation.</p>
+      <button onclick="saveResults()">Save / Email Results</button>
+      <button onclick="scheduleDrive()">Schedule Test Drive</button>
+    </section>
+
+    <section class="card">
+      <h2>Analytics Dashboard Mockup</h2>
+      <div class="grid">
+        <div class="metric"><p>Tool Landing Page Visits</p><strong id="visits">1,248</strong><p>Awareness KPI</p></div>
+        <div class="metric"><p>Quiz Starts</p><strong id="starts">0</strong><p>Consideration KPI</p></div>
+        <div class="metric"><p>Quiz Completions</p><strong id="completions">0</strong><p>Consideration KPI</p></div>
+        <div class="metric"><p>Saved Results</p><strong id="saved">0</strong><p>Lead Generation KPI</p></div>
+        <div class="metric"><p>Test Drive Clicks</p><strong id="drives">0</strong><p>Test Drive KPI</p></div>
+        <div class="metric"><p>Attributed EV Leads</p><strong id="leads">0</strong><p>Conversion KPI</p></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Measurement Logic</h2>
+      <p><strong>Awareness →</strong> landing page visits and campaign clicks</p>
+      <p><strong>Consideration →</strong> quiz starts, completion rate, calculator usage, charging planner usage</p>
+      <p><strong>Dealer Action →</strong> saved results, dealer appointment clicks, EV specialist requests</p>
+      <p><strong>Test Drive →</strong> scheduled test drives and completed test drives</p>
+      <p><strong>Conversion →</strong> EV purchases or leases attributed to tool engagement</p>
+    </section>
+
+    <footer>
+      Built by Jon McClain / JQM for Bentley University MBA Marketing Analytics coursework.
+    </footer>
+  </div>
+
+  <script>
+    let starts=0, completions=0, saved=0, drives=0, leads=0;
+
+    function startQuiz(){
+      document.getElementById("quiz").classList.remove("hidden");
+      starts++;
+      document.getElementById("starts").innerText = starts;
+      window.scrollTo({top:document.getElementById("quiz").offsetTop,behavior:"smooth"});
+    }
+
+    function showResult(){
+      const household=document.getElementById("household").value;
+      const budget=document.getElementById("budget").value;
+      const charging=document.getElementById("charging").value;
+      let vehicle="Kia EV6";
+      let reason="Recommended for drivers seeking a balanced EV with strong technology, performance, and everyday practicality.";
+
+      if(budget==="value"){vehicle="Kia Niro EV"; reason="Recommended for value-focused first-time EV buyers seeking practicality, efficiency, and lower ownership complexity.";}
+      if(household==="large" || budget==="premium"){vehicle="Kia EV9"; reason="Recommended for families needing three-row utility, space, and a practical EV alternative to a gas SUV.";}
+
+      document.getElementById("vehicle").innerText=vehicle;
+      document.getElementById("reason").innerText=reason;
+      document.getElementById("chargeText").innerText = charging==="yes"
+        ? "Home charging is likely the best primary option. Public charging can support longer trips."
+        : "A dealer EV consultation should review local public charging, workplace charging, and home installation options.";
+
+      document.getElementById("result").classList.remove("hidden");
+      completions++;
+      leads++;
+      document.getElementById("completions").innerText=completions;
+      document.getElementById("leads").innerText=leads;
+      window.scrollTo({top:document.getElementById("result").offsetTop,behavior:"smooth"});
+    }
+
+    function saveResults(){
+      saved++;
+      document.getElementById("saved").innerText=saved;
+      alert("Results saved. KPI captured: Saved Results / Email Capture.");
+    }
+
+    function scheduleDrive(){
+      drives++;
+      document.getElementById("drives").innerText=drives;
+      alert("Test drive request captured. KPI captured: Dealer Appointment Click.");
+    }
+  </script>
+</body>
+</html>
